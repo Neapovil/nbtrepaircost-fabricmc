@@ -13,7 +13,9 @@ import net.minecraft.item.Items;
 import net.minecraft.screen.AnvilScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.registry.Registry;
 
 public class NbtTooltipExtra implements ClientModInitializer
@@ -35,7 +37,7 @@ public class NbtTooltipExtra implements ClientModInitializer
 
         final ItemStack repairitem = Registry.ITEM.stream()
                 .filter(i -> stack.getItem().canRepair(stack, i.getDefaultStack()))
-                .map(i -> i.getDefaultStack())
+                .map(i -> new ItemStack(i, 64))
                 .findFirst()
                 .orElse(ItemStack.EMPTY);
 
@@ -59,11 +61,15 @@ public class NbtTooltipExtra implements ClientModInitializer
             return;
         }
 
-        if (repaircost == 1)
+        if (stack.hasCustomName())
         {
-            repaircost++;
+            repaircost--;
         }
+        
+        final Text text = new LiteralText("Repair Cost: " + repaircost)
+                .setStyle(Style.EMPTY.withColor(Formatting.GRAY).withUnderline(true));
 
-        lines.add(new LiteralText("Repair Cost: " + repaircost));
+        lines.add(1, new LiteralText(""));
+        lines.add(1, text);
     }
 }
