@@ -20,56 +20,65 @@ import net.minecraft.util.registry.Registry;
 
 public class NbtTooltipExtra implements ClientModInitializer
 {
+    final MinecraftClient client = MinecraftClient.getInstance();
+
     @Override
     public void onInitializeClient()
     {
-        ItemTooltipCallback.EVENT.register(NbtTooltipExtra::tooltip);
+        ItemTooltipCallback.EVENT.register((ItemStack stack, TooltipContext context, List<Text> lines) -> {
+            if (client.player == null)
+            {
+                return;
+            }
+
+            final ItemStack repairitem = Registry.ITEM.stream()
+                    .filter(i -> stack.getItem().canRepair(stack, i.getDefaultStack()))
+                    .map(i -> new ItemStack(i, 64))
+                    .findFirst()
+                    .orElse(ItemStack.EMPTY);
+
+            final ItemStack repairitem1 = Registry.ITEM.stream()
+                    .filter(i -> stack.isOf(i))
+                    .map(i -> new ItemStack(i))
+                    .findFirst()
+                    .orElse(ItemStack.EMPTY);
+
+            if (repairitem.isOf(Items.AIR))
+            {
+                return;
+            }
+
+            int repaircost = this.getRepairCost(stack, repairitem);
+            int repaircost1 = this.getRepairCost(stack, repairitem1);
+
+            if (repaircost == 0)
+            {
+                return;
+            }
+
+            if (stack.hasCustomName())
+            {
+                repaircost--;
+            }
+
+            final Text text = new LiteralText("Repair Cost: " + repaircost + " / " + repaircost1)
+                    .setStyle(Style.EMPTY.withColor(Formatting.GRAY).withUnderline(true));
+
+            lines.add(1, new LiteralText(""));
+            lines.add(1, text);
+        });
     }
 
-    private static void tooltip(ItemStack stack, TooltipContext context, List<Text> lines)
+    private int getRepairCost(ItemStack stack, ItemStack stack1)
     {
-        final MinecraftClient client = MinecraftClient.getInstance();
-
-        if (client.player == null)
-        {
-            return;
-        }
-
-        final ItemStack repairitem = Registry.ITEM.stream()
-                .filter(i -> stack.getItem().canRepair(stack, i.getDefaultStack()))
-                .map(i -> new ItemStack(i, 64))
-                .findFirst()
-                .orElse(ItemStack.EMPTY);
-
-        if (repairitem.isOf(Items.AIR))
-        {
-            return;
-        }
-
         final AnvilScreenHandler s = new AnvilScreenHandler(0, client.player.getInventory(),
                 ScreenHandlerContext.create(client.world, client.player.getBlockPos()));
 
         ((ForgingScreenHandlerAccessor) s).getInput().setStack(0, stack);
-        ((ForgingScreenHandlerAccessor) s).getInput().setStack(1, repairitem);
+        ((ForgingScreenHandlerAccessor) s).getInput().setStack(1, stack1);
 
         s.updateResult();
 
-        int repaircost = s.getLevelCost();
-
-        if (repaircost == 0)
-        {
-            return;
-        }
-
-        if (stack.hasCustomName())
-        {
-            repaircost--;
-        }
-        
-        final Text text = new LiteralText("Repair Cost: " + repaircost)
-                .setStyle(Style.EMPTY.withColor(Formatting.GRAY).withUnderline(true));
-
-        lines.add(1, new LiteralText(""));
-        lines.add(1, text);
+        return s.getLevelCost();
     }
 }
