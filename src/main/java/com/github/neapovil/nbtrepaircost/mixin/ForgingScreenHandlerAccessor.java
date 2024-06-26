@@ -1,4 +1,4 @@
-package com.github.neapovil.nbttooltipextra.mixin;
+package com.github.neapovil.nbtrepaircost.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
