@@ -4,13 +4,17 @@
   "version": "${version}",
   "name": "Nbt Tooltip Extra",
   "description": "",
-  "authors": ["Neapovil"],
+  "authors": [
+    "Neapovil"
+  ],
   "contact": {},
   "license": "Unlicense",
   "icon": "assets/nbtrepaircost/icon.png",
   "environment": "client",
   "entrypoints": {
-    "client": [ "com.github.neapovil.nbtrepaircost.NbtRepairCost" ]
+    "client": [
+      "com.github.neapovil.nbtrepaircost.NbtRepairCost"
+    ]
   },
   "mixins": [
     "nbtrepaircost.mixins.json"
