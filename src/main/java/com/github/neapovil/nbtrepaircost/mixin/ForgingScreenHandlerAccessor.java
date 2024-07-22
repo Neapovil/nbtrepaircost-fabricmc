@@ -9,5 +9,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface ForgingScreenHandlerAccessor
 {
     @Accessor("input")
-    public Inventory getInput();
+    Inventory getInput();
 }

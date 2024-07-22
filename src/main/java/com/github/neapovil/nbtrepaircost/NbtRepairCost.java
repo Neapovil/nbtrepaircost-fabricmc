@@ -39,8 +39,8 @@ public final class NbtRepairCost implements ClientModInitializer
             .orElse(ItemStack.EMPTY);
 
         final ItemStack repairitem1 = Registries.ITEM.stream()
-            .filter(i -> stack.isOf(i))
-            .map(i -> new ItemStack(i))
+            .filter(stack::isOf)
+            .map(ItemStack::new)
             .findFirst()
             .orElse(ItemStack.EMPTY);
 
@@ -69,6 +69,11 @@ public final class NbtRepairCost implements ClientModInitializer
 
     private int getRepairCost(ItemStack stack, ItemStack stack1)
     {
+        if (client.player == null)
+        {
+            return 0;
+        }
+
         final AnvilScreenHandler s = new AnvilScreenHandler(0, client.player.getInventory(),
             ScreenHandlerContext.create(client.world, client.player.getBlockPos()));
 
